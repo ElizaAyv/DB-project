@@ -1,30 +1,25 @@
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from sqlalchemy import create_engine, text
 
-# Database configuration
-DB_NAME = "scientific_conferences"
+DB_NAME = "scientific_conference"
 DB_USER = "postgres" 
 DB_PASSWORD = "89793238" 
 DB_HOST = "localhost"  
 DB_PORT = 5432 
 
-try:
-    connection = psycopg2.connect(
-        dbname="postgres",
-        user=DB_USER,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=DB_PORT,
-    )
-    connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/postgres"
 
-    cursor = connection.cursor()
+def init_database():
+    engine = create_engine(DATABASE_URL, isolation_level="AUTOCOMMIT")
+    with engine.connect() as connection:
+        result = connection.execute(
+            text(f"SELECT 1 FROM pg_database WHERE datname = :db_name"),
+            {"db_name": DB_NAME},
+        )
+        if result.fetchone():
+            print(f"Database '{DB_NAME}' already exists.")
+        else:
+            connection.execute(text(f"CREATE DATABASE {DB_NAME} OWNER {DB_USER}"))
+            print(f"Database '{DB_NAME}' created successfully!")
 
-    cursor.execute(f"CREATE DATABASE {DB_NAME} OWNER {DB_USER};")
-    print(f"Database '{DB_NAME}' created successfully!")
-
-    cursor.close()
-    connection.close()
-
-except Exception as e:
-    print("An error occurred:", e)
+if __name__ == "__main__":
+    init_database()
