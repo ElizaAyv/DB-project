@@ -12,7 +12,7 @@ from app.crud import (
 
 router = APIRouter(prefix="/scientists", tags=["scientists"])
 
-@router.post("/", response_model=ScientistResponse)
+@router.post("/", response_model=ScientistResponse, status_code=201)
 def create_scientist_route(scientist: ScientistCreate, db: Session = Depends(get_db)):
     return create_scientist(db, scientist)
 

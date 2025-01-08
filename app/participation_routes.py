@@ -12,7 +12,7 @@ from app.crud import (
 
 router = APIRouter(prefix="/participation", tags=["participation"])
 
-@router.post("/participations/", response_model=ParticipationResponse)
+@router.post("/participations/", response_model=ParticipationResponse, status_code=201)
 def create_participation_route(participation: ParticipationCreate, db: Session = Depends(get_db)):
     return create_participation(db, participation)
 

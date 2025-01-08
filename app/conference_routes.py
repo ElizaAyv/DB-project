@@ -12,7 +12,7 @@ from app.crud import (
 
 router = APIRouter(prefix="/conferences", tags=["conferences"])
 
-@router.post("/conferences/", response_model=ConferenceResponse)
+@router.post("/conferences/", response_model=ConferenceResponse, status_code=201)
 def create_conference_route(conference: ConferenceCreate, db: Session = Depends(get_db)):
     return create_conference(db, conference)
 
