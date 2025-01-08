@@ -16,3 +16,5 @@ def get_db():
         print(f"Error while getting DB session: {e}")
     finally:
         db.close()
+
+
