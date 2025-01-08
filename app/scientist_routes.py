@@ -6,6 +6,7 @@ from app.crud import (
     create_scientist,
     get_scientist,
     get_scientists,
+    update_scientist,
     delete_scientist,
 )
 
@@ -26,22 +27,12 @@ def get_scientist_route(scientist_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Scientist not found")
     return db_scientist
 
-@router.patch("/scientists/{scientist_id}", response_model=ScientistResponse)
-def update_scientist_route(
-    scientist_id: int,
-    updated_data: ScientistCreate,
-    db: Session = Depends(get_db)
-):
-    db_scientist = get_scientist(db, scientist_id)
-    if not db_scientist:
+@router.put("/scientists/{scientist_id}", response_model=ScientistResponse)
+def update_scientist_route(scientist_id: int, scientist: ScientistCreate, db: Session = Depends(get_db)):
+    updated_scientist = update_scientist(db, scientist_id, scientist)
+    if not updated_scientist:
         raise HTTPException(status_code=404, detail="Scientist not found")
-    
-    for key, value in updated_data.dict(exclude_unset=True).items():
-        setattr(db_scientist, key, value)
-    
-    db.commit()
-    db.refresh(db_scientist)
-    return db_scientist
+    return updated_scientist
 
 @router.delete("/{scientist_id}", status_code=204)
 def delete_scientist_route(scientist_id: int, db: Session = Depends(get_db)):

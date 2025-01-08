@@ -32,3 +32,18 @@ class ConferenceResponse(ConferenceBase):
 
     class Config:
         orm_mode = True
+
+
+class ParticipationBase(BaseModel):
+    scientist_id: int
+    conference_id: int
+    role: Optional[str] = None
+
+class ParticipationCreate(ParticipationBase):
+    pass
+
+class ParticipationResponse(ParticipationBase):
+    id: int
+
+    class Config:
+        orm_mode = True

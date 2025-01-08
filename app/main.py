@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.scientist_routes import router as scientist_router
 from app.conference_routes import router as conference_router
+from app.participation_routes import router as participation_router
 
 DB_NAME = "scientific_conference"
 DB_USER = "postgres"
@@ -17,6 +18,7 @@ Base = declarative_base()
 
 app = FastAPI()
 
-app.include_router(scientist_router, prefix="/api")
-app.include_router(conference_router, prefix="/api")
+app.include_router(scientist_router)
+app.include_router(conference_router)
+app.include_router(participation_router)
 

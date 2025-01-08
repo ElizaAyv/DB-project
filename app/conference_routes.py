@@ -6,6 +6,7 @@ from app.crud import (
     create_conference,
     get_conference,
     get_conferences,
+    update_conference,
     delete_conference,
 )
 
@@ -26,22 +27,12 @@ def get_conference_route(conference_id: int, db: Session = Depends(get_db)):
 def get_conferences_route(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return get_conferences(db, skip, limit)
 
-@router.patch("/conferences/{conference_id}", response_model=ConferenceResponse)
-def update_conference_route(
-    conference_id: int,
-    updated_data: ConferenceCreate,
-    db: Session = Depends(get_db)
-):
-    db_conference = get_conference(db, conference_id)
-    if not db_conference:
+@router.put("/conferences/{conference_id}", response_model=ConferenceResponse)
+def update_conference_route(conference_id: int, conference: ConferenceCreate, db: Session = Depends(get_db)):
+    updated_conference = update_conference(db, conference_id, conference)
+    if not updated_conference:
         raise HTTPException(status_code=404, detail="Conference not found")
-    
-    for key, value in updated_data.dict(exclude_unset=True).items():
-        setattr(db_conference, key, value)
-    
-    db.commit()
-    db.refresh(db_conference)
-    return db_conference
+    return updated_conference
 
 @router.delete("/conferences/{conference_id}", status_code=204)
 def delete_conference_route(conference_id: int, db: Session = Depends(get_db)):
