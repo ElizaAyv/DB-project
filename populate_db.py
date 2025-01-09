@@ -1,8 +1,9 @@
 import requests
 from faker import Faker
+from datetime import time
 import random
 
-BASE_URL = "http://127.0.0.1:8000"  # Base URL for your FastAPI app
+BASE_URL = "http://127.0.0.1:8000"
 
 faker = Faker()
 
@@ -38,24 +39,24 @@ def populate_conferences(n=50):
         else:
             print(f"Failed to create conference: {response.text}")
 
-
-def populate_participations(n=200):
+def populate_participations(n=100):
     scientist_ids = [s["id"] for s in requests.get(f"{BASE_URL}/scientists/").json()]
     conference_ids = [c["id"] for c in requests.get(f"{BASE_URL}/conferences/").json()]
 
     for _ in range(n):
         participation_data = {
-            "scientist_id": random.choice(scientist_ids),
-            "conference_id": random.choice(conference_ids),
-            "report_theme": faker.sentence(), #TODO make more realistic, eext_word_list or smth
-            "performance_duration": random.choice(), #TODO find duration method
-            "participation_type": random.choice(["Speaker", "Attendee", "Organizer"])
+            "scientist_id": faker.random_element(scientist_ids),
+            "conference_id": faker.random_element(conference_ids),
+            "report_theme": faker.catch_phrase(),
+            "performance_duration": faker.time_object().strftime("%H:%M:%S"),
+            "participation_type": faker.random_element(["Oral", "Poster", "Workshop"]),
         }
         response = requests.post(f"{BASE_URL}/participations/", json=participation_data)
         if response.status_code == 201:
             print(f"Participation created: {response.json()}")
         else:
             print(f"Failed to create participation: {response.text}")
+
 
 
 if __name__ == "__main__":

@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session
 from app.models import Scientist
 from app.schemas import ScientistCreate
 from app.models import Conference
-from app.schemas import ConferenceCreate
+from app.schemas import ConferenceCreate, ConferenceUpdate
 from app.models import Participation
-from app.schemas import ParticipationCreate, ParticipationResponse
+from app.schemas import ParticipationCreate, ParticipationUpdate
 
 def create_scientist(db: Session, scientist: ScientistCreate) -> Scientist:
     db_scientist = Scientist(**scientist.dict())
@@ -37,13 +37,12 @@ def delete_scientist(db: Session, scientist_id: int) -> bool:
         return True
     return False
 
-
-def create_conference(db: Session, conference: ConferenceCreate) -> Conference:
-    db_conference = Conference(**conference.dict())
-    db.add(db_conference)
+def create_conference(db: Session, conference_data: ConferenceCreate) -> Conference:
+    conference = Conference(**conference_data.dict())
+    db.add(conference)
     db.commit()
-    db.refresh(db_conference)
-    return db_conference
+    db.refresh(conference)
+    return conference
 
 def get_conference(db: Session, conference_id: int) -> Conference:
     return db.query(Conference).filter(Conference.id == conference_id).first()
@@ -51,52 +50,52 @@ def get_conference(db: Session, conference_id: int) -> Conference:
 def get_conferences(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Conference).offset(skip).limit(limit).all()
 
-def update_conference(db: Session, conference_id: int, updated_data: ConferenceCreate):
-    db_conference = db.query(Conference).filter(Conference.id == conference_id).first()
-    if not db_conference:
+def update_conference(db: Session, conference_id: int, updated_data: ConferenceUpdate) -> Conference:
+    conference = db.query(Conference).filter(Conference.id == conference_id).first()
+    if not conference:
         return None
-    for key, value in updated_data.dict().items():
-        setattr(db_conference, key, value)
+    for key, value in updated_data.dict(exclude_unset=True).items():
+        setattr(conference, key, value)
     db.commit()
-    db.refresh(db_conference)
-    return db_conference
+    db.refresh(conference)
+    return conference
 
 def delete_conference(db: Session, conference_id: int) -> bool:
-    db_conference = db.query(Conference).filter(Conference.id == conference_id).first()
-    if db_conference:
-        db.delete(db_conference)
-        db.commit()
-        return True
-    return False
-
-
-def create_participation(db: Session, participation: ParticipationCreate) -> Participation:
-    db_participation = Participation(**participation.dict())
-    db.add(db_participation)
+    conference = db.query(Conference).filter(Conference.id == conference_id).first()
+    if not conference:
+        return False
+    db.delete(conference)
     db.commit()
-    db.refresh(db_participation)
-    return db_participation
+    return True
+
+
+def create_participation(db: Session, participation_data: ParticipationCreate) -> Participation:
+    participation = Participation(**participation_data.dict())
+    db.add(participation)
+    db.commit()
+    db.refresh(participation)
+    return participation
 
 def get_participation(db: Session, participation_id: int) -> Participation:
     return db.query(Participation).filter(Participation.id == participation_id).first()
 
-def get_participations(db: Session, skip: int = 0, limit: int = 10) -> list[Participation]:
+def get_participations(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Participation).offset(skip).limit(limit).all()
 
-def update_participation(db: Session, participation_id: int, updated_data: ParticipationCreate) -> Participation:
-    db_participation = get_participation(db, participation_id)
-    if not db_participation:
+def update_participation(db: Session, participation_id: int, updated_data: ParticipationUpdate) -> Participation:
+    participation = db.query(Participation).filter(Participation.id == participation_id).first()
+    if not participation:
         return None
-    for key, value in updated_data.dict().items():
-        setattr(db_participation, key, value)
+    for key, value in updated_data.dict(exclude_unset=True).items():
+        setattr(participation, key, value)
     db.commit()
-    db.refresh(db_participation)
-    return db_participation
+    db.refresh(participation)
+    return participation
 
 def delete_participation(db: Session, participation_id: int) -> bool:
-    db_participation = get_participation(db, participation_id)
-    if db_participation:
-        db.delete(db_participation)
-        db.commit()
-        return True
-    return False
+    participation = db.query(Participation).filter(Participation.id == participation_id).first()
+    if not participation:
+        return False
+    db.delete(participation)
+    db.commit()
+    return True

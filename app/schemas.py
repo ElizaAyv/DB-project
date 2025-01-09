@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from datetime import date, time
 from typing import Optional
 
 class ScientistBase(BaseModel):
@@ -19,12 +20,16 @@ class ScientistResponse(ScientistBase):
 
 
 class ConferenceBase(BaseModel):
-    title: str
+    name: str
+    topic: str
+    country: Optional[str] = None
     location: str
-    date: str  # Assuming you're using a string for date in "YYYY-MM-DD" format
-    topic: Optional[str] = None
+    date: date
 
 class ConferenceCreate(ConferenceBase):
+    pass
+
+class ConferenceUpdate(ConferenceBase):
     pass
 
 class ConferenceResponse(ConferenceBase):
@@ -37,9 +42,14 @@ class ConferenceResponse(ConferenceBase):
 class ParticipationBase(BaseModel):
     scientist_id: int
     conference_id: int
-    role: Optional[str] = None
+    report_theme: str
+    performance_duration: time
+    participation_type: Optional[str] = Field(None, max_length=50)
 
 class ParticipationCreate(ParticipationBase):
+    pass
+
+class ParticipationUpdate(ParticipationBase):
     pass
 
 class ParticipationResponse(ParticipationBase):
