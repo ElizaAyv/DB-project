@@ -23,7 +23,7 @@ def get_conferences_route(
     skip: int = 0,
     limit: int = 10,
     sort_by: str = None,
-    sort_order: str = "asc", 
+    sort_order: str = "asc",
     db: Session = Depends(get_db)
 ):
     query = db.query(Conference)

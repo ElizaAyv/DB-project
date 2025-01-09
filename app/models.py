@@ -25,7 +25,7 @@ class Conference(Base):
     topic = Column(String(100), nullable=False) 
     country = Column(String(50)) 
     location = Column(String(100), nullable=False)
-    date = Column(Date, nullable=False) 
+    date = Column(Date, nullable=False)
 
     def __repr__(self):
         return f"<Conference(name='{self.name}', topic='{self.topic}', date='{self.date}')>"
