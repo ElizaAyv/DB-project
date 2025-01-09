@@ -19,6 +19,14 @@ class ScientistResponse(ScientistBase):
         orm_mode = True
 
 
+class ScientistCountResponse(BaseModel):
+    conference_name: str
+    scientist_count: int
+
+    class Config:
+        orm_mode = True
+
+
 class ConferenceBase(BaseModel):
     name: str
     topic: str
@@ -50,7 +58,8 @@ class ParticipationCreate(ParticipationBase):
     pass
 
 class ParticipationUpdate(ParticipationBase):
-    pass
+    participation_type: str
+
 
 class ParticipationResponse(ParticipationBase):
     id: int

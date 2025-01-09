@@ -8,6 +8,7 @@ from app.crud import (
     get_participations,
     update_participation,
     delete_participation,
+    update_participation_type,
 )
 
 router = APIRouter(prefix="/participations", tags=["participations"])
@@ -39,3 +40,11 @@ def delete_participation_route(participation_id: int, db: Session = Depends(get_
     success = delete_participation(db, participation_id)
     if not success:
         raise HTTPException(status_code=404, detail="Participation not found")
+
+#update participation type
+@router.put("/update-participation-type/", response_model=dict)
+def update_participation_type_route(keyword: str, new_type: str, db: Session = Depends(get_db)):
+    updated_rows = update_participation_type(db, keyword, new_type)
+    if updated_rows == 0:
+        raise HTTPException(status_code=404, detail="No participations matched the criteria.")
+    return {"message": f"{updated_rows} participations updated successfully."}

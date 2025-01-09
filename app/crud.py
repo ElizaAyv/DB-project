@@ -1,11 +1,14 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 from app.models import Scientist
 from app.schemas import ScientistCreate
 from app.models import Conference
 from app.schemas import ConferenceCreate, ConferenceUpdate
 from app.models import Participation
 from app.schemas import ParticipationCreate, ParticipationUpdate
+from sqlalchemy import update
 
+#scientist
 def create_scientist(db: Session, scientist: ScientistCreate) -> Scientist:
     db_scientist = Scientist(**scientist.dict())
     db.add(db_scientist)
@@ -37,6 +40,8 @@ def delete_scientist(db: Session, scientist_id: int) -> bool:
         return True
     return False
 
+
+#conference
 def create_conference(db: Session, conference_data: ConferenceCreate) -> Conference:
     conference = Conference(**conference_data.dict())
     db.add(conference)
@@ -69,6 +74,7 @@ def delete_conference(db: Session, conference_id: int) -> bool:
     return True
 
 
+#participation
 def create_participation(db: Session, participation_data: ParticipationCreate) -> Participation:
     participation = Participation(**participation_data.dict())
     db.add(participation)
@@ -99,3 +105,24 @@ def delete_participation(db: Session, participation_id: int) -> bool:
     db.delete(participation)
     db.commit()
     return True
+
+#Update participation type
+def update_participation_type(db: Session, keyword: str, new_type: str):
+    query = (
+        update(Participation)
+        .where(Participation.report_theme.ilike(f"%{keyword}%"))
+        .values(participation_type=new_type)
+        .execution_options(synchronize_session="fetch")
+    )
+    result = db.execute(query)
+    db.commit()
+    return result.rowcount
+
+#count the scientists per conference (Group by)
+def get_scientist_count_per_conference(db: Session):
+    return (
+        db.query(Conference.name, func.count(Participation.scientist_id).label("scientist_count"))
+        .join(Participation, Conference.id == Participation.conference_id)
+        .group_by(Conference.id)
+        .all()
+    )

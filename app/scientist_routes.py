@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
+from app.models import Scientist, Participation
 from app.schemas import ScientistCreate, ScientistResponse
 from app.crud import (
     create_scientist,
@@ -39,3 +40,16 @@ def delete_scientist_route(scientist_id: int, db: Session = Depends(get_db)):
     success = delete_scientist(db, scientist_id)
     if not success:
         raise HTTPException(status_code=404, detail="Scientist not found")
+
+#scientists in the conference (Join)
+@router.get("/by_conference/{conference_id}", response_model=list[ScientistResponse])
+def get_scientists_by_conference(conference_id: int, db: Session = Depends(get_db)):
+    scientists = (
+        db.query(Scientist)
+        .join(Participation, Scientist.id == Participation.scientist_id)
+        .filter(Participation.conference_id == conference_id)
+        .all()
+    )
+    if not scientists:
+        raise HTTPException(status_code=404, detail="No scientists found for this conference")
+    return scientists
